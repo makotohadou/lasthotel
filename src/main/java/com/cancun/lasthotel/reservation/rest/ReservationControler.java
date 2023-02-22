@@ -1,7 +1,10 @@
 package com.cancun.lasthotel.reservation.rest;
 
+import com.cancun.lasthotel.reservation.model.json.in.ReservationInput;
 import com.cancun.lasthotel.reservation.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -20,14 +23,24 @@ public class ReservationControler {
 
     }
 
-    @GetMapping("/{id}")
-    public List<Date> getReservation(Integer id) {
+    @GetMapping("/{code}")
+    public List<Date> getReservation(String code) {
         return null;
 
     }
 
     @PostMapping
-    public void createReservation(@RequestBody List<Date> reservation) {
+    public ResponseEntity<Object> createReservation(@RequestBody ReservationInput reservation) {
+        if (reservationService.createReservation(reservation)){
+            return ResponseEntity
+                    .ok()
+                    .build();
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("You cannot make this reservation");
+        }
+
 
     }
 

@@ -1,13 +1,17 @@
 package com.cancun.lasthotel.reservation.service;
 
 import com.cancun.lasthotel.reservation.misc.DateUtil;
+import com.cancun.lasthotel.reservation.model.Customer;
 import com.cancun.lasthotel.reservation.model.Reservation;
+import com.cancun.lasthotel.reservation.model.json.in.ReservationInput;
+import com.cancun.lasthotel.reservation.repository.CustomerRepository;
 import com.cancun.lasthotel.reservation.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -16,6 +20,9 @@ public class ReservationService {
 
     @Autowired
     private ReservationRepository repository;
+
+    @Autowired
+    CustomerRepository customerRepository;
 
     public List<Date> getAvailability() {
         List<Date> reservations = repository
@@ -29,5 +36,25 @@ public class ReservationService {
                 .filter(Predicate.not(reservations::contains))
                 .collect(Collectors.toList());
 
+    }
+
+    public boolean createReservation(ReservationInput reservationInput) {
+        Optional<Customer> customer = customerRepository.findByName(reservationInput.getCustomer());
+        if (customer.isEmpty()) {
+            return false;
+        }
+        reservationInput.getReservationDates()
+                .forEach(date -> {
+                    Reservation reservation = new Reservation();
+                    reservation.setReservationDate(date);
+                    reservation.setCustomer(customer.get());
+                    repository.save(reservation);
+                });
+
+        return true;
+    }
+
+    private boolean canReserve(Date date, Customer customer) {
+        return false;
     }
 }
