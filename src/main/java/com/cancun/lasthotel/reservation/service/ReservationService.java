@@ -4,15 +4,13 @@ import com.cancun.lasthotel.reservation.misc.DateUtil;
 import com.cancun.lasthotel.reservation.model.Customer;
 import com.cancun.lasthotel.reservation.model.Reservation;
 import com.cancun.lasthotel.reservation.model.json.in.ReservationInput;
+import com.cancun.lasthotel.reservation.model.json.out.ReservationOutput;
 import com.cancun.lasthotel.reservation.repository.CustomerRepository;
 import com.cancun.lasthotel.reservation.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -74,5 +72,23 @@ public class ReservationService {
             return false;
         }
         return dates.stream().allMatch(date -> canReserve(date,customer));
+    }
+
+    public List<ReservationOutput> findReservationsByCustomer(String customerName){
+        List<ReservationOutput> reservationOutputs = new ArrayList<>();
+        repository.findByCustomerName(customerName)
+                .stream()
+                .collect(Collectors.groupingBy(Reservation::getReservationCode))
+                .forEach((code, reservations) -> {
+                    ReservationOutput output = new ReservationOutput();
+                    output.setCustomer(customerName);
+                    output.setReservationCode(code);
+                    output.setReservationDates(reservations
+                            .stream()
+                            .map(Reservation::getReservationDate)
+                            .collect(Collectors.toList()));
+                    reservationOutputs.add(output);
+                });
+        return reservationOutputs;
     }
 }

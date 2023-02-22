@@ -1,4 +1,4 @@
-package com.cancun.lasthotel.reservation.model.json.in;
+package com.cancun.lasthotel.reservation.model.json.out;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,14 +10,11 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ReservationInput {
-
+public class ReservationOutput {
     private String customer;
 
-    private Date startDate;
+    private String reservationCode;
 
-    private Date endDate;
-
-
+    private List<Date> reservationDates;
 
 }
