@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -39,22 +40,39 @@ public class ReservationService {
     }
 
     public boolean createReservation(ReservationInput reservationInput) {
+
         Optional<Customer> customer = customerRepository.findByName(reservationInput.getCustomer());
+        List<Date> reservationDates = DateUtil.getDaysBetweenDates(reservationInput.getStartDate(),reservationInput.getEndDate());
+
         if (customer.isEmpty()) {
             return false;
         }
-        reservationInput.getReservationDates()
+        if (!canReserve(reservationDates,customer.get())){
+            return false;
+        }
+        String reservationCode = UUID.randomUUID().toString();
+        reservationDates
                 .forEach(date -> {
                     Reservation reservation = new Reservation();
                     reservation.setReservationDate(date);
                     reservation.setCustomer(customer.get());
+                    reservation.setReservationCode(reservationCode);
                     repository.save(reservation);
                 });
 
         return true;
     }
 
+    //TODO not allow reservations when another reservation of the customer would cause a continuous stay for more than
+    //3 days
     private boolean canReserve(Date date, Customer customer) {
-        return false;
+        return repository.findByReservationDate(date).isEmpty();
+    }
+
+    private boolean canReserve(List<Date> dates, Customer customer){
+        if (dates.size() > 3){
+            return false;
+        }
+        return dates.stream().allMatch(date -> canReserve(date,customer));
     }
 }
