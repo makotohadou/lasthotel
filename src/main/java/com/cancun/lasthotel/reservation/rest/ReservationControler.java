@@ -21,26 +21,25 @@ public class ReservationControler {
     @GetMapping("/availability")
     public List<Date> getAvailability() {
         return reservationService.getAvailability();
-
     }
 
     @GetMapping("/{code}")
     public ResponseEntity<ReservationOutput> getReservation(@PathVariable String code) {
         ReservationOutput reservationOutput = reservationService.getReservationByCode(code);
-        if (reservationOutput != null){
+        if (reservationOutput != null) {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(reservationOutput);
         } else {
             return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
+                    .status(HttpStatus.NOT_FOUND)
                     .body(null);
         }
     }
 
     @PostMapping
     public ResponseEntity<Object> createReservation(@RequestBody ReservationInput reservation) {
-        if (reservationService.createReservation(reservation)){
+        if (reservationService.createReservation(reservation)) {
             return ResponseEntity
                     .ok()
                     .build();
@@ -49,13 +48,11 @@ public class ReservationControler {
                     .status(HttpStatus.CONFLICT)
                     .body("You cannot make this reservation");
         }
-
-
     }
 
     @DeleteMapping("/{code}")
-    public void deleteReservation(){
-
+    public void deleteReservation(@PathVariable String code) {
+        reservationService.deleteReservation(code);
     }
 
     @PutMapping("/{code}")

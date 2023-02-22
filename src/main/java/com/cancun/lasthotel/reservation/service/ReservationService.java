@@ -34,13 +34,12 @@ public class ReservationService {
                 .stream()
                 .filter(Predicate.not(reservations::contains))
                 .collect(Collectors.toList());
-
     }
 
     public boolean createReservation(ReservationInput reservationInput) {
-
         Optional<Customer> customer = customerRepository.findByName(reservationInput.getCustomer());
-        List<Date> reservationDates = DateUtil.getDaysBetweenDates(reservationInput.getStartDate(),reservationInput.getEndDate());
+        List<Date> reservationDates = DateUtil.getDaysBetweenDates(reservationInput.getStartDate(),
+                reservationInput.getEndDate());
 
         if (customer.isEmpty()) {
             return false;
@@ -111,6 +110,10 @@ public class ReservationService {
                 .collect(Collectors.toList()));
 
         return reservationOutput;
+    }
 
+    public void deleteReservation(String code){
+        repository.findByReservationCode(code)
+                .forEach(reservation -> repository.delete(reservation));
     }
 }
