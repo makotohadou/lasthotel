@@ -3,6 +3,7 @@ package com.cancun.lasthotel.reservation.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -20,7 +21,11 @@ public class Reservation {
     private Customer customer;
 
     @Column
-    private Date reservatioDate;
+    private Date reservationDate;
+
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
+    private String reservationCode;
 
 
 }
