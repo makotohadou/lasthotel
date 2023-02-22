@@ -4,12 +4,16 @@ import com.cancun.lasthotel.reservation.misc.DateUtil;
 import com.cancun.lasthotel.reservation.model.Customer;
 import com.cancun.lasthotel.reservation.model.Reservation;
 import com.cancun.lasthotel.reservation.model.json.in.ReservationInput;
+import com.cancun.lasthotel.reservation.model.json.in.ReservationInputUpdate;
+import com.cancun.lasthotel.reservation.model.json.out.AvailabilityOutput;
 import com.cancun.lasthotel.reservation.model.json.out.ReservationOutput;
 import com.cancun.lasthotel.reservation.repository.CustomerRepository;
 import com.cancun.lasthotel.reservation.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -23,22 +27,22 @@ public class ReservationService {
     @Autowired
     CustomerRepository customerRepository;
 
-    public List<Date> getAvailability() {
-        List<Date> reservations = repository
+    public AvailabilityOutput getAvailability() {
+        List<LocalDate> reservations = repository
                 .findByReservationDateBetween(DateUtil.getTomorrow(), DateUtil.getThirtyDaysFromNow())
                 .stream()
                 .map(Reservation::getReservationDate)
                 .collect(Collectors.toList());
 
-        return DateUtil.getNextThirtyDays()
+        return new AvailabilityOutput(DateUtil.getNextThirtyDays()
                 .stream()
                 .filter(Predicate.not(reservations::contains))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     public boolean createReservation(ReservationInput reservationInput) {
         Optional<Customer> customer = customerRepository.findByName(reservationInput.getCustomer());
-        List<Date> reservationDates = DateUtil.getDaysBetweenDates(reservationInput.getStartDate(),
+        List<LocalDate> reservationDates = DateUtil.getDaysBetweenDates(reservationInput.getStartDate(),
                 reservationInput.getEndDate());
 
         if (customer.isEmpty()) {
@@ -62,11 +66,11 @@ public class ReservationService {
 
     //TODO not allow reservations when another reservation of the customer would cause a continuous stay for more than
     //3 days
-    private boolean canReserve(Date date, Customer customer) {
+    private boolean canReserve(LocalDate date, Customer customer) {
         return repository.findByReservationDate(date).isEmpty();
     }
 
-    private boolean canReserve(List<Date> dates, Customer customer){
+    private boolean canReserve(List<LocalDate> dates, Customer customer){
         if (dates.size() > 3){
             return false;
         }
@@ -115,5 +119,19 @@ public class ReservationService {
     public void deleteReservation(String code){
         repository.findByReservationCode(code)
                 .forEach(reservation -> repository.delete(reservation));
+    }
+
+    @Transactional()
+    public void updateReservation(String code, ReservationInputUpdate reservationInputUpdate){
+        String customerName = repository.findByReservationCode(code)
+                .stream()
+                .findAny()
+                .map(Reservation::getCustomer)
+                .map(Customer::getName)
+                .orElseThrow(()->new RuntimeException("Could not find Customer name"));
+        deleteReservation(code);
+        if (!createReservation(new ReservationInput(reservationInputUpdate,customerName))){
+            throw new RuntimeException("Could not update reservation");
+        }
     }
 }

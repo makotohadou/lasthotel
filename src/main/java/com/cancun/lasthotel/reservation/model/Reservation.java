@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -20,7 +21,7 @@ public class Reservation {
     private Customer customer;
 
     @Column
-    private Date reservationDate;
+    private LocalDate reservationDate;
 
     @Column
     private String reservationCode;

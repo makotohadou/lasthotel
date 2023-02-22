@@ -1,6 +1,7 @@
 package com.cancun.lasthotel.reservation.model.json.out;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,12 +12,9 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ReservationOutput {
-    private String customer;
-
-    private String reservationCode;
+@AllArgsConstructor
+public class AvailabilityOutput {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private List<LocalDate> reservationDates;
-
+    private List<LocalDate> availability;
 }

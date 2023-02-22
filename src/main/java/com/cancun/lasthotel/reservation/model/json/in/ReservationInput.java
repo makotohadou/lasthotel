@@ -1,11 +1,11 @@
 package com.cancun.lasthotel.reservation.model.json.in;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -14,10 +14,17 @@ public class ReservationInput {
 
     private String customer;
 
-    private Date startDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    private LocalDate startDate;
 
-    private Date endDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    private LocalDate endDate;
 
 
+    public ReservationInput(ReservationInputUpdate update, String customer){
+        this.startDate = update.getStartDate();
+        this.endDate = update.getEndDate();
+        this.customer = customer;
+    }
 
 }

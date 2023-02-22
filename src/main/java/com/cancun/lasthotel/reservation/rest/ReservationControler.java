@@ -1,6 +1,8 @@
 package com.cancun.lasthotel.reservation.rest;
 
 import com.cancun.lasthotel.reservation.model.json.in.ReservationInput;
+import com.cancun.lasthotel.reservation.model.json.in.ReservationInputUpdate;
+import com.cancun.lasthotel.reservation.model.json.out.AvailabilityOutput;
 import com.cancun.lasthotel.reservation.model.json.out.ReservationOutput;
 import com.cancun.lasthotel.reservation.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,7 @@ public class ReservationControler {
     private ReservationService reservationService;
 
     @GetMapping("/availability")
-    public List<Date> getAvailability() {
+    public AvailabilityOutput getAvailability() {
         return reservationService.getAvailability();
     }
 
@@ -56,7 +58,16 @@ public class ReservationControler {
     }
 
     @PutMapping("/{code}")
-    public void updateReservation(@RequestBody List<Date> reservation) {
-
+    public ResponseEntity<String>  updateReservation(@RequestBody ReservationInputUpdate reservation, @PathVariable String code) {
+        try {
+            reservationService.updateReservation(code, reservation);
+            return ResponseEntity
+                    .ok()
+                    .build();
+        } catch (RuntimeException exception){
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(exception.getMessage());
+        }
     }
 }

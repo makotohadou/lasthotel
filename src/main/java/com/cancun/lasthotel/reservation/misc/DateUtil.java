@@ -1,45 +1,38 @@
 package com.cancun.lasthotel.reservation.misc;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DateUtil {
 
-    public static List<Date> getDaysBetweenDates(Date startdate, Date enddate)
-    {
-        List<Date> dates = new ArrayList<>();
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(startdate);
-
-        while (calendar.getTime().before(enddate))
-        {
-            Date result = calendar.getTime();
-            dates.add(result);
-            calendar.add(Calendar.DATE, 1);
-        }
+    public static List<LocalDate> getDaysBetweenDates(LocalDate startDate, LocalDate endDate) {
+        List<LocalDate> dates =  Stream.iterate(startDate, date -> date.plusDays(1))
+                .limit(ChronoUnit.DAYS.between(startDate, endDate))
+                .collect(Collectors.toList());
+        dates.add(endDate);
         return dates;
     }
 
-    public static List<Date> getNextThirtyDays()
-    {
-        return getDaysBetweenDates(getTomorrow(),getThirtyDaysFromNow());
+    public static List<LocalDate> getNextThirtyDays() {
+        return getDaysBetweenDates(getTomorrow(), getThirtyDaysFromNow());
     }
 
-    //TODO use mexico timezone?
-    public static Date convertLocalDateTimeToDate(LocalDateTime input){
-        return Date.from(input.toLocalDate().atStartOfDay(ZoneId.of("UTC")).toInstant());
+    public static LocalDate convertLocalDateTimeToLocalDate(LocalDateTime input) {
+        return input.toLocalDate();
     }
 
-    public static Date getTomorrow(){
+    public static LocalDate getTomorrow() {
         LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
-        return convertLocalDateTimeToDate(tomorrow);
+        return convertLocalDateTimeToLocalDate(tomorrow);
     }
 
-    public static Date getThirtyDaysFromNow(){
+    public static LocalDate getThirtyDaysFromNow() {
         LocalDateTime thirtyDaysFromNow = LocalDateTime.now().plusDays(30);
-        return convertLocalDateTimeToDate(thirtyDaysFromNow);
+        return convertLocalDateTimeToLocalDate(thirtyDaysFromNow);
     }
-
 
 }
