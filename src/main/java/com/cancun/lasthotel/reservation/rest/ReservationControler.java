@@ -52,6 +52,7 @@ public class ReservationControler {
         }
     }
 
+    //Will return a 200 even if nothing was deleted. This is intended as to not leak information.
     @DeleteMapping("/{code}")
     public void deleteReservation(@PathVariable String code) {
         reservationService.deleteReservation(code);
