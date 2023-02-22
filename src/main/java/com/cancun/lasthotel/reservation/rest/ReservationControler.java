@@ -1,6 +1,7 @@
 package com.cancun.lasthotel.reservation.rest;
 
 import com.cancun.lasthotel.reservation.model.json.in.ReservationInput;
+import com.cancun.lasthotel.reservation.model.json.out.ReservationOutput;
 import com.cancun.lasthotel.reservation.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,9 +25,17 @@ public class ReservationControler {
     }
 
     @GetMapping("/{code}")
-    public List<Date> getReservation(String code) {
-        return null;
-
+    public ResponseEntity<ReservationOutput> getReservation(@PathVariable String code) {
+        ReservationOutput reservationOutput = reservationService.getReservationByCode(code);
+        if (reservationOutput != null){
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(reservationOutput);
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(null);
+        }
     }
 
     @PostMapping
@@ -44,7 +53,12 @@ public class ReservationControler {
 
     }
 
-    @PutMapping("/{id}")
+    @DeleteMapping("/{code}")
+    public void deleteReservation(){
+
+    }
+
+    @PutMapping("/{code}")
     public void updateReservation(@RequestBody List<Date> reservation) {
 
     }

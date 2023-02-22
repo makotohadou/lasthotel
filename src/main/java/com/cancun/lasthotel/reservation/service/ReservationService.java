@@ -91,4 +91,26 @@ public class ReservationService {
                 });
         return reservationOutputs;
     }
+
+    public ReservationOutput getReservationByCode(String code){
+        List<Reservation> reservations = repository.findByReservationCode(code);
+        if (reservations.isEmpty()){
+            return null;
+        }
+        ReservationOutput reservationOutput = new ReservationOutput();
+        reservationOutput.setReservationCode(code);
+        reservationOutput.setCustomer(reservations
+                .stream()
+                .findAny()
+                .map(Reservation::getCustomer)
+                .map(Customer::getName)
+                .orElse("Name"));
+        reservationOutput.setReservationDates(reservations
+                .stream()
+                .map(Reservation::getReservationDate)
+                .collect(Collectors.toList()));
+
+        return reservationOutput;
+
+    }
 }
