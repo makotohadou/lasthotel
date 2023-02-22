@@ -67,7 +67,7 @@ public class ReservationService {
     //TODO not allow reservations when another reservation of the customer would cause a continuous stay for more than
     //3 days
     private boolean canReserve(LocalDate date, Customer customer) {
-        return repository.findByReservationDate(date).isEmpty();
+        return getAvailability().getAvailability().contains(date);
     }
 
     private boolean canReserve(List<LocalDate> dates, Customer customer){
